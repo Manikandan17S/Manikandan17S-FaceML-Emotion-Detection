@@ -24,15 +24,15 @@ dist-ssr
 *.sw?
 .env
 
-# Ignore node_modules and venv
-node_modules/
+# Python
 .venv/
 __pycache__/
 *.pyc
 
-# Ignore datasets
+# Node
+node_modules/
+dist/
+
+# Dataset
 dataset/
 *.zip
-
-# Ignore environment files
-.env
