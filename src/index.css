@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Mirror effect for front-facing camera */
+.mirror {
+  transform: scaleX(-1);
+}
+
+/* Ensure video elements display properly */
+video {
+  background-color: #1F2937;
+  object-fit: cover;
+}
+
+/* Fix video black screen issues */
+video::-webkit-media-controls {
+  display: none !important;
+}
+
+video::-webkit-media-controls-enclosure {
+  display: none !important;
+}
+
+/* Ensure proper video rendering */
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #1F2937;
+}
