@@ -12,7 +12,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from PIL import Image
 
-from emotion_cnn import EmotionCNN
+from backend.emotion_cnn import EmotionCNN
 
 app = Flask(__name__)
 CORS(app)
