@@ -66,7 +66,7 @@ def get_dataloaders() -> Dict[str, DataLoader]:
         train_dataset,
         batch_size=BATCH_SIZE,
         shuffle=True,
-        num_workers=0,     # 0 for Windows; you can increase if on Linux
+        num_workers=0,     
         pin_memory=(device.type == "cuda")
     )
 

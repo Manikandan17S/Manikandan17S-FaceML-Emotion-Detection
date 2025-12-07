@@ -1,4 +1,3 @@
-# backend/emotion_cnn.py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -45,7 +44,6 @@ class EmotionCNN(nn.Module):
 
 
 if __name__ == "__main__":
-    # quick sanity check
     model = EmotionCNN()
     params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print("Trainable params:", params)

@@ -69,7 +69,7 @@ def predict_emotion_stream():
         if len(faces) == 0:
             return jsonify({"success": True, "faces_detected": 0})
 
-        # Take first face for simplicity
+        
         (x, y, w, h) = faces[0]
         face_img = gray[y:y + h, x:x + w]
         pil_img = Image.fromarray(face_img)

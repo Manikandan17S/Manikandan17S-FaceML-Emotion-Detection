@@ -24,6 +24,8 @@ import TryAnother from './components/TryAnother';
 import OpenSource from './components/OpenSource';
 import Contact from './components/Contact';
 import ParticleBackground from './components/ParticleBackground';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 
 function App() {
   const [activeSection, setActiveSection] = useState('hero');

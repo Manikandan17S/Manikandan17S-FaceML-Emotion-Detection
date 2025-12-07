@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, RefreshCw } from 'lucide-react';
 import EmotionChart from './EmotionChart';
+const API_BASE = import.meta.env.VITE_API_BASE_URL;
+
 
 const emotions = [
   { name: 'angry', emoji: '😠', color: 'text-red-400', label: 'Angry' },
@@ -12,6 +14,10 @@ const emotions = [
   { name: 'surprise', emoji: '😲', color: 'text-purple-400', label: 'Surprise' },
   { name: 'neutral', emoji: '😐', color: 'text-gray-400', label: 'Neutral' }
 ];
+
+type LiveDemo = {
+  apiBase: string;
+};
 
 const LiveDemo = () => {
   const [isActive, setIsActive] = useState(false);
@@ -43,7 +49,7 @@ const LiveDemo = () => {
 
   const checkBackendConnection = async () => {
     try {
-      const res = await fetch('http://localhost:5000/health');
+      const res = await fetch(`${API_BASE}/health`);
       if (res.ok) {
         setBackendConnected(true);
         setDebugInfo('Backend connected ✅');
@@ -136,7 +142,7 @@ const LiveDemo = () => {
 
       const frameData = canvas.toDataURL('image/jpeg', 0.8);
 
-      const res = await fetch('http://localhost:5000/predict_emotion_stream', {
+      const res = await fetch(`${API_BASE}/predict_emotion_stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ frame: frameData })
