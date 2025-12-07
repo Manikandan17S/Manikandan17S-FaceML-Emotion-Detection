@@ -39,12 +39,21 @@ transform = transforms.Compose([
 emotion_labels = ['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
 
 # Haarcascade for face detection
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+cascade_path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+face_cascade = cv2.CascadeClassifier(cascade_path)
+
+print("[INFO] Using device:", device)
+print("[INFO] Haar cascade path:", cascade_path)
+print("[INFO] Haar cascade loaded empty? ->", face_cascade.empty())
 
 
 @app.route("/health", methods=["GET"])
 def health():
-    return jsonify({"status": "Backend is running with PyTorch!"})
+    return jsonify({
+        "status": "Backend is running with PyTorch!",
+        "device": str(device),
+        "cascade_loaded": not face_cascade.empty()
+    })
 
 
 @app.route("/predict_emotion_stream", methods=["POST"])
@@ -62,16 +71,31 @@ def predict_emotion_stream():
         if frame is None:
             return jsonify({"success": False, "error": "Invalid image data"}), 400
 
+        h, w, _ = frame.shape
+
         # Detect faces
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5)
+
+        faces = face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=1.1,   # you can try 1.05 later if still no faces
+            minNeighbors=3,    # was 5, now more lenient
+            minSize=(60, 60)   # ignore tiny detections
+        )
+
+        # Debug: print some info in Render logs
+        print(f"[DEBUG] Frame size: {w}x{h}, faces detected: {len(faces)}")
 
         if len(faces) == 0:
-            return jsonify({"success": True, "faces_detected": 0})
+            return jsonify({
+                "success": True,
+                "faces_detected": 0,
+                "debug": "no_faces_detected"
+            })
 
-        
-        (x, y, w, h) = faces[0]
-        face_img = gray[y:y + h, x:x + w]
+        # Take first face
+        (x, y, w_face, h_face) = faces[0]
+        face_img = gray[y:y + h_face, x:x + w_face]
         pil_img = Image.fromarray(face_img)
 
         img_tensor = transform(pil_img).unsqueeze(0).to(device)
@@ -88,13 +112,14 @@ def predict_emotion_stream():
 
         return jsonify({
             "success": True,
-            "faces_detected": len(faces),
+            "faces_detected": int(len(faces)),
             "emotion": emotion_labels[predicted.item()],
             "confidence": float(confidence),
             "emotion_distribution": emotion_distribution
         })
 
     except Exception as e:
+        print("[ERROR] Exception in /predict_emotion_stream:", e)
         return jsonify({"success": False, "error": str(e)}), 500
 
 

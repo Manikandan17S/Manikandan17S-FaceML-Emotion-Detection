@@ -15,9 +15,6 @@ const emotions = [
   { name: 'neutral', emoji: '😐', color: 'text-gray-400', label: 'Neutral' }
 ];
 
-type LiveDemo = {
-  apiBase: string;
-};
 
 const LiveDemo = () => {
   const [isActive, setIsActive] = useState(false);
