@@ -1,119 +1,268 @@
-FaceML - Real-Time Emotion Detection
+# FaceML - Real-Time Emotion Detection
 
+A real-time emotion detection web app powered by a **CNN in PyTorch** for emotion recognition and built with **Flask (backend)** + **React (frontend)**.
 
+---
 
+## ✨ Features
 
-A real-time emotion detection web app powered by CNN for emotion recognition and built with Flask (backend) + React (frontend).
+✅ Real-time webcam-based emotion detection  
+✅ Detects 7 emotions: **Happy, Sad, Angry, Surprise, Fear, Disgust, Neutral**  
+✅ Modern, responsive UI (React + Tailwind + animations)  
+✅ Live confidence scores & emotion distribution  
+✅ All processing done locally (privacy-first)  
+✅ **CNN model trained on FER-2013-style dataset using PyTorch**
 
-✨ Features
-✅ Real-time webcam-based emotion detection
-✅ Detects 7 emotions: Happy, Sad, Angry, Surprise, Fear, Disgust, Neutral
-✅ Modern, responsive UI (Tailwind + Animations)
-✅ Live confidence scores & timeline charts
-✅ All processing done locally (Privacy-first)
-✅ CNN Model trained on FER-2013 dataset
+---
 
-🚀 Quick Start
-1. Clone the Repository
-bash
-Copy
-Edit
+## 🚀 Quick Start
+
+### 1️⃣ Clone the Repository
+
+```bash
 git clone https://github.com/Manikandan17S/Manikandan17S-FaceML-Emotion-Detection.git
 cd Manikandan17S-FaceML-Emotion-Detection
-2. Backend Setup
-bash
-Copy
-Edit
-cd backend
+
+2️⃣ Backend Setup (PyTorch + Flask)
+
+From the project root:
+# Create virtual environment
 python -m venv venv
+
 # Activate venv
-# Windows:
+# Windows (PowerShell):
+venv\Scripts\Activate.ps1
+
+# Windows (CMD):
 venv\Scripts\activate
+
 # Mac/Linux:
 source venv/bin/activate
 
+# Install Python dependencies
 pip install -r requirements.txt
-python app.py
-✅ Flask server will run on http://localhost:5000
 
-3. Frontend Setup
-bash
-Copy
-Edit
-# In project root
+# Run Flask backend
+python backend/app.py
+
+✅ Flask server will be available at:
+http://localhost:5000
+
+3️⃣ Frontend Setup (React + Vite)
+
+From the project root (in a separate terminal):
+
 npm install
 npm run dev
-✅ React app will run on http://localhost:5173
+
+
+✅ React app will run at (by default):
+http://localhost:5173
 
 🖥️ Usage
-Start Backend → python app.py
 
-Start Frontend → npm run dev
+Start backend:
 
-Open → http://localhost:5173
+python backend/app.py
 
-Allow Camera Access and click Start Detection
 
-📊 Model Details
-Architecture: CNN (TensorFlow/Keras)
+Start frontend:
 
-Dataset: FER-2013
+npm run dev
 
-Input: 48x48 grayscale image
 
-Output: 7 emotions (Angry, Disgust, Fear, Happy, Neutral, Sad, Surprise)
+Open the app in your browser:
+
+👉 http://localhost:5173
+
+Allow camera access and click “Start Detection”
+
+Watch real-time emotion predictions with confidence scores 🎭
+
+🧠 Model Details (PyTorch Version)
+
+Framework: PyTorch
+
+Architecture: Custom CNN defined in backend/emotion_cnn.py
+
+Training Script: backend/model_training.py
+
+Saved Weights: backend/emotion_model.pt
+
+Dataset: FER-2013-style emotion dataset
+
+Input: 48×48 grayscale face image
+
+Output classes (index order):
+
+['angry', 'disgust', 'fear', 'happy', 'sad', 'surprise', 'neutral']
+
+🔁 Re-training the Model
+
+Expected dataset structure:
+
+dataset/
+    train/
+        angry/
+        disgust/
+        fear/
+        happy/
+        sad/
+        surprise/
+        neutral/
+    test/
+        angry/
+        disgust/
+        fear/
+        happy/
+        sad/
+        surprise/
+        neutral/
+
+
+From project root (with venv activated):
+
+python backend/model_training.py
+
+
+Best model weights are saved as: backend/emotion_model.pt
+
+app.py automatically loads this file on startup.
 
 📂 Project Structure
-bash
-Copy
-Edit
 FaceML/
 ├── backend/
-│   ├── app.py             # Flask API
-│   ├── model.h5           # Trained CNN model
-│   ├── requirements.txt    # Python dependencies
+│   ├── app.py              # Flask API (PyTorch inference)
+│   ├── emotion_cnn.py      # CNN model definition (PyTorch)
+│   ├── model_training.py   # Training script (FER-2013 style)
+│   ├── emotion_model.pt    # Trained model weights (PyTorch state_dict)
+│
 ├── src/
-│   ├── components/         # React Components
-│   ├── App.tsx            # Main App
-│   └── main.tsx           # Entry point
-├── .gitignore
+│   ├── components/         # React components (UI)
+│   ├── App.tsx             # Main React app
+│   └── main.tsx            # Entry point (Vite)
+│
+├── package.json
+├── requirements.txt        # Python dependencies (Flask, PyTorch, etc.)
 ├── README.md
-└── package.json
-🔑 API Endpoints
-Health Check
-bash
-Copy
-Edit
+└── .gitignore
+
+🔑 API Endpoints (Flask + PyTorch)
+✅ Health Check
 GET /health
-Response: { "status": "ok" }
-Predict Emotion
-css
-Copy
-Edit
-POST /predict_emotion
-Body: { "image": "data:image/jpeg;base64,..." }
+
+
+Response:
+
+{
+  "status": "Backend is running with PyTorch!"
+}
+
+🎭 Real-time Emotion Prediction (Webcam Frame Stream)
+POST /predict_emotion_stream
+Content-Type: application/json
+
+
+Request body:
+
+{
+  "frame": "data:image/jpeg;base64,..." 
+}
+
+
+Where frame is a base64-encoded image string captured from the webcam on the frontend.
+
+Response example:
+
+{
+  "success": true,
+  "faces_detected": 1,
+  "emotion": "happy",
+  "confidence": 0.93,
+  "emotion_distribution": {
+    "angry": 0.01,
+    "disgust": 0.00,
+    "fear": 0.02,
+    "happy": 0.93,
+    "sad": 0.01,
+    "surprise": 0.02,
+    "neutral": 0.01
+  }
+}
+
+
+If no face is detected:
+
+{
+  "success": true,
+  "faces_detected": 0
+}
+
 📦 Requirements
-Python 3.8+
+🔹 Backend
 
-Flask 3.0+
+Python 3.10+ (recommended 3.10 / 3.11)
 
-TensorFlow 2.x
+PyTorch (CPU build is enough)
+
+Torchvision
+
+Flask 3.x
+
+Flask-Cors
+
+OpenCV
+
+Pillow
+
+NumPy
+
+(All handled via requirements.txt)
+
+🔹 Frontend
 
 Node.js 16+
 
+React + Vite
+
+Tailwind CSS (if used for styling)
+
 ⚠️ Common Issues
-✅ Black Screen → Refresh & allow camera
-✅ Backend not connecting → Check CORS + Flask running
-✅ Slow detection → Close other apps, good lighting
+
+✅ Black screen / no camera
+→ Refresh page, ensure browser has camera permissions.
+
+✅ Backend not responding
+→ Check that python backend/app.py is running with no errors.
+→ Confirm backend URL (http://localhost:5000) in frontend config if applicable.
+
+✅ CORS issues
+→ Flask uses flask_cors.CORS(app) to allow frontend access.
+→ Make sure ports (5000 & 5173) are correct.
+
+✅ Slow detection / lag
+→ Close heavy apps, use good lighting, and keep face within frame.
 
 🤝 Contributing
-Fork & Star 🌟 the repo
 
-Create a feature branch
+Fork the repo
 
-Make changes & push
+Star ⭐ if you like the project
 
-Submit a Pull Request
+Create a new feature branch:
+
+git checkout -b feature/your-feature-name
+
+
+Commit your changes & push:
+
+git push origin feature/your-feature-name
+
+
+Open a Pull Request
 
 📜 License
-Licensed under MIT License.
+
+This project is licensed under the MIT License.
+
+Built with 💙 by Scott (Manikandan) and PyTorch ⚡
