@@ -2,8 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Camera, RefreshCw } from 'lucide-react';
 import EmotionChart from './EmotionChart';
-const API_BASE = import.meta.env.VITE_API_BASE_URL;
 
+// Use env var with a safe fallback for local dev
+const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
 const emotions = [
   { name: 'angry', emoji: '😠', color: 'text-red-400', label: 'Angry' },
@@ -15,8 +16,7 @@ const emotions = [
   { name: 'neutral', emoji: '😐', color: 'text-gray-400', label: 'Neutral' }
 ];
 
-
-const LiveDemo = () => {
+const LiveDemo: React.FC = () => {
   const [isActive, setIsActive] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentEmotion, setCurrentEmotion] = useState(emotions[6]); // neutral
@@ -104,7 +104,7 @@ const LiveDemo = () => {
       streamRef.current = null;
     }
     if (videoRef.current) {
-      videoRef.current.srcObject = null;
+      (videoRef.current as HTMLVideoElement).srcObject = null;
     }
     setIsActive(false);
     setVideoReady(false);
@@ -154,13 +154,12 @@ const LiveDemo = () => {
       const result = await res.json();
       console.log('Backend result:', result);
 
-      if (result.success && result.faces_detected > 0 && result.emotion) {
+      // accept both normal and fallback outputs as long as there's an emotion
+      if (result.success && result.emotion) {
         const emotionName = String(result.emotion).toLowerCase();
-
         const detectedEmotion =
           emotions.find(e => e.name === emotionName) || emotions[6];
 
-        // confidence from backend is 0–1, convert to %
         const confPercent =
           typeof result.confidence === 'number'
             ? Math.round(result.confidence * 100)
@@ -176,9 +175,12 @@ const LiveDemo = () => {
           { time: now, emotion: detectedEmotion.label, confidence: confPercent }
         ]);
 
-        setDebugInfo(
-          `Detected: ${detectedEmotion.label} (${confPercent}%) – faces: ${result.faces_detected}`
-        );
+        const debugText =
+          result.debug === 'no_faces_detected_fallback_full_frame'
+            ? `No clear face found – using full frame (${detectedEmotion.label}, ${confPercent}%)`
+            : `Detected: ${detectedEmotion.label} (${confPercent}%) – faces: ${result.faces_detected ?? 0}`;
+
+        setDebugInfo(debugText);
       } else if (result.success && result.faces_detected === 0) {
         setDebugInfo('No face detected');
       } else {

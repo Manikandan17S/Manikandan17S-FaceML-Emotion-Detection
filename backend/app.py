@@ -15,7 +15,23 @@ from PIL import Image
 from backend.emotion_cnn import EmotionCNN
 
 app = Flask(__name__)
-CORS(app)
+
+# Explicit CORS config for Vercel + local dev
+CORS(
+    app,
+    resources={r"/*": {"origins": [
+        "http://localhost:5173",
+        "https://face-ml-emotion-detection.vercel.app"
+    ]}},
+    supports_credentials=False,
+)
+
+@app.after_request
+def add_cors_headers(response):
+    # Safety net to ensure CORS headers are always present
+    response.headers.add("Access-Control-Allow-Headers", "Content-Type,Authorization")
+    response.headers.add("Access-Control-Allow-Methods", "GET,POST,OPTIONS")
+    return response
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
